@@ -2,8 +2,8 @@ import asyncio
 import random
 import os
 from camoufox import AsyncCamoufox
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 URL_BROWSER = os.getenv("URL_BROWSER")
 URL = random.choice(os.getenv("URL"))
