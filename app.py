@@ -1,79 +1,31 @@
 import asyncio
-import json
-import os
 import random
-
-# uv pip install -U camoufox
-from browserforge.fingerprints import Screen
+import os
 from camoufox import AsyncCamoufox
-from playwright.async_api import Page
+from dotenv import load_dotenv
+load_dotenv()
 
-from hcaptcha_challenger import AgentV, AgentConfig, CaptchaResponse
-from hcaptcha_challenger.utils import SiteKey
-
-MAX_RETRIES = 5  # None = infinito
-url = os.getenv("URL")
-comando = os.getenv("COMANDO")
-
-async def challenge(page: Page) -> AgentV:
-    """Automates the process of solving an hCaptcha challenge."""
-    # [IMPORTANT] Initialize the Agent before triggering hCaptcha
-    api_key = os.getenv("API_KEY").split('\n')
-    agent_config = AgentConfig(
-        DISABLE_BEZIER_TRAJECTORY=True, GEMINI_API_KEY=random.choice(api_key))
-    agent = AgentV(page=page, agent_config=agent_config)
-
-    # In your real-world workflow, you may need to replace the `click_checkbox()`
-    # It may be to click the Login button or the Submit button to a trigger challenge
-    await agent.robotic_arm.click_checkbox()
-
-    # Wait for the challenge to appear and be ready for solving
-    await agent.wait_for_challenge()
-
-    return agent
+URL_BROWSER = os.getenv("URL_BROWSER")
+URL = random.choice(os.getenv("URL"))
+MINUTOS = int(os.getenv("MINUTOS"))
+MAX_RETRIES = int(os.getenv("MAX_RETRIES"))  # None = infinito
 
 
 async def run_browser():
     async with AsyncCamoufox(
         headless=True,
-        persistent_context=True,
-        user_data_dir="tmp/.cache/camoufox",
-        screen=Screen(max_width=1366, max_height=768),
+        # screen=Screen(max_width=1920, max_height=1080),
         humanize=0.2,  # humanize=True,
+        # geoip=True,
     ) as browser:
-        page = browser.pages[-1] if browser.pages else await browser.new_page()
-
-        await page.goto(url, wait_until="domcontentloaded")
+        page = await browser.new_page()
+        await page.goto(URL_BROWSER, wait_until="domcontentloaded")
         await page.wait_for_timeout(5000)
-        await page.wait_for_selector('button.button[data-type="linux"]')
-        await page.click('button.button[data-type="linux"]')
-        await page.wait_for_timeout(3000)
-
-        # --- When you encounter hCaptcha in your workflow ---
-        agent: AgentV = await challenge(page)
-
-        # Print the last CaptchaResponse
-        if agent.cr_list:
-            cr: CaptchaResponse = agent.cr_list[-1]
-            # print(json.dumps(cr.model_dump(by_alias=True),
-            #       indent=2, ensure_ascii=False))
-
-        await page.wait_for_timeout(5000)
-
-        await page.wait_for_selector("textarea.xterm-helper-textarea", timeout=60000)
-        print("Terminal carregado com sucesso!")
-        await page.wait_for_timeout(5000)
-        await page.type("textarea.xterm-helper-textarea", comando, delay=40, timeout=60000)
-        await page.keyboard.press("Enter")
-        print("Comando digitado com sucesso!")
-        await page.wait_for_timeout(30000)
-        await page.screenshot(path="screen.png", full_page=True)
-
-        # lines = await page.locator(".xterm-rows > div").all_text_contents()
-        # terminal_text = "\n".join(lines)
-        # print(terminal_text.strip())
-
-        minutos = 15
+        await page.wait_for_selector("#url")
+        await page.fill("#url", URL)
+        await page.wait_for_timeout(2000)
+        await page.click("text=Launch Workspace")
+        minutos = MINUTOS
         # await asyncio.sleep(minutos * 60)
         await page.wait_for_timeout(minutos * 60 * 1000)
         await page.screenshot(path="screen.png", full_page=True)
