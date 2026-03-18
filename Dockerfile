@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright/python:v1.42.1-jammy
+FROM mcr.microsoft.com/playwright/python:latest
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Se usa camoufox, mantém:
-RUN python -m camoufox fetch || true
+RUN camoufox fetch || true
 
 COPY . .
 
