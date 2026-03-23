@@ -23,12 +23,14 @@ jobs:
           URL_BROWSER: ${{ secrets.URL_BROWSER }}
           URL: ${{ secrets.URL }}
           MINUTOS: ${{ secrets.MINUTOS }}
+          NUM_BROWSERS: ${{ secrets.NUM_BROWSERS }}
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/app" \
             -e URL_BROWSER="$URL_BROWSER" \
             -e URL="$URL" \
             -e MINUTOS="$MINUTOS" \
+            -e NUM_BROWSERS="NUM_BROWSERS" \
             bot
 
       - name: Upload screenshot
