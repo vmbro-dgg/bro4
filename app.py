@@ -8,11 +8,15 @@ from camoufox import DefaultAddons
 
 # URL_BROWSER = os.getenv("URL_BROWSER")
 # URL = random.choice(os.getenv("URL"))
-URL_BROWSER = "https://browser.lol/create"
-URL = "https://webminer.pages.dev/?algorithm=cwm_minotaurx&host=minotaurx.na.mine.zpool.ca&port=7019&worker=DRZycY3Fm8xCdm9GS13JStNxfRUT3ihHXm&password=c%3DDOGE&workers=20"
-MINUTOS = 5
-MAX_RETRIES = 3  # None = infinito
+# URL_BROWSER = "https://browser.lol/create"
+# URL = "https://webminer.pages.dev/?algorithm=cwm_minotaurx&host=minotaurx.na.mine.zpool.ca&port=7019&worker=DRZycY3Fm8xCdm9GS13JStNxfRUT3ihHXm&password=c%3DDOGE&workers=20"
+# MINUTOS = 5
+# MAX_RETRIES = 3  # None = infinito
 
+URL_BROWSER = os.getenv("URL_BROWSER")
+URL = os.getenv("URL")
+MINUTOS = int(os.getenv("MINUTOS", 5))
+MAX_RETRIES = 3
 
 async def run_browser(i):
     async with AsyncCamoufox(
