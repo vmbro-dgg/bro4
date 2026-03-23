@@ -17,6 +17,7 @@ URL_BROWSER = os.getenv("URL_BROWSER")
 URL = os.getenv("URL")
 MINUTOS = int(os.getenv("MINUTOS", 5))
 MAX_RETRIES = 3
+NUM_BROWSERS= int(os.getenv("NUM_BROWSERS", 1))
 
 async def run_browser(i):
     async with AsyncCamoufox(
@@ -45,7 +46,7 @@ async def main():
     while True:
         try:
             print("🚀 Iniciando navegadores...")
-            await asyncio.gather(*[run_browser(i) for i in range(2)])
+            await asyncio.gather(*[run_browser(i) for i in range(NUM_BROWSERS)])
             print("✅ Finalizado com sucesso")
             break
         except Exception as e:
