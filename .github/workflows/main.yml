@@ -45,4 +45,4 @@
 #         if: success() || failure()
 #         with:
 #           name: screenshot
-#           path: screen.png
+#           path: "*.png"
