@@ -24,6 +24,7 @@ jobs:
           URL: ${{ secrets.URL }}
           MINUTOS: ${{ secrets.MINUTOS }}
           NUM_BROWSERS: ${{ secrets.NUM_BROWSERS }}
+        continue-on-error: true
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/app" \
