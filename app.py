@@ -42,7 +42,9 @@ async def run_browser(i):
 
 # 🔥 NOVA FUNÇÃO COM DELAY
 async def run_with_delay(i):
-    await asyncio.sleep(i * DELAY)
+    # await asyncio.sleep(i * DELAY)
+    await asyncio.sleep(DELAY)
+    # print(f"🌐 Browser {i+1} iniciando após {i * DELAY}s")
     print(f"🌐 Browser {i+1} iniciando após {i * DELAY}s")
     await run_browser(i)
 
