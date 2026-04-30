@@ -11,7 +11,4 @@ jobs:
 
     steps:
       - name: Show ID
-        run: echo "Job ID: ${{ matrix.id }}"
-
-      - name: Show IP
         run: curl -s https://ipinfo.io/ip
