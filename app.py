@@ -91,7 +91,7 @@ DELAY = 50
 
 async def run_browser(i, email):
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
         page = await browser.new_page()
         login = random.choice([True, False])
