@@ -17,14 +17,12 @@ async def run_browser(i, email):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
-        login = random.choice([True, False])
-        if login and email:
-            await page.goto(f"{URL_BROWSER}/auth", wait_until="domcontentloaded")
-            await page.wait_for_selector("#email")
-            await page.type("#email", email, delay=10)
-            await page.type("#password", SENHA, delay=10)
-            await page.click("button[type='submit']")
-            await page.wait_for_timeout(10000)
+        await page.goto(f"{URL_BROWSER}/auth", wait_until="domcontentloaded")
+        await page.wait_for_selector("#email")
+        await page.type("#email", email, delay=10)
+        await page.type("#password", SENHA, delay=10)
+        await page.click("button[type='submit']")
+        await page.wait_for_timeout(10000)
         await page.goto(f"{URL_BROWSER}/create", wait_until="domcontentloaded")
         await page.wait_for_timeout(5000)
         await page.wait_for_selector("#url")
@@ -66,4 +64,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
