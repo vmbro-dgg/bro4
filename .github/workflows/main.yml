@@ -48,5 +48,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: screenshot
+          name: screenshot-${{ matrix.id }}
           path: "*.png"
+          if-no-files-found: ignore
