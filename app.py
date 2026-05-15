@@ -57,8 +57,10 @@ async def run_browser(i):
             await pageTab.wait_for_selector("#url")
             await pageTab.type("#url", URL, delay=10)
             await pageTab.wait_for_timeout(2000)
-            await pageTab.click("button[type='submit']")
-            await pageTab.wait_for_timeout(MINUTOS * 60 * 1000)
+            await page.wait_for_selector("button[type='submit']")
+            await page.click("button[type='submit']")
+            await page.wait_for_timeout(MINUTOS * 60 * 1000)
+            await page.screenshot(path=f"screen_{i+1}.png", full_page=True)
 
     except Exception as e:
         print(f"❌ Browser {i+1} erro: {e}")
