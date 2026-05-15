@@ -4,65 +4,75 @@ import os
 from playwright.async_api import async_playwright
 
 URL_BROWSER = os.getenv("URL_BROWSER")
-URL = os.getenv("URL")
-EMAIL = os.getenv("EMAIL")
+URL_EMAIL = os.getenv("URL_EMAIL")
+URL = os.getenv("URL", "")
 SENHA = os.getenv("SENHA")
 MINUTOS = int(os.getenv("MINUTOS", 5))
-NUM_BROWSERS = int(os.getenv("NUM_BROWSERS", 1))
-MAX_RETRIES = 3
-DELAY = 50
+NUM_BROWSERS = random.randint(3, 5)
+
+sucessos = 0
 
 
-async def run_browser(i, email):
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
-        # login = random.choice([True, False])
-        # if login and email:
-        await page.goto(f"{URL_BROWSER}/auth", wait_until="domcontentloaded")
-        await page.wait_for_selector("#email")
-        await page.type("#email", email, delay=10)
-        await page.type("#password", SENHA, delay=10)
-        await page.click("button[type='submit']")
-        await page.wait_for_timeout(10000)
-        await page.goto(f"{URL_BROWSER}/create", wait_until="domcontentloaded")
-        await page.wait_for_timeout(5000)
-        await page.wait_for_selector("#url")
-        await page.type("#url", URL, delay=10)
-        await page.wait_for_timeout(2000)
-        await page.wait_for_selector("button[type='submit']")
-        await page.click("button[type='submit']")
-        await page.wait_for_timeout(MINUTOS * 60 * 1000)
-        await page.screenshot(path=f"screen_{i+1}.png", full_page=True)
+async def run_browser(i):
+    global sucessos
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=False)
+            page = await browser.new_page()
+            await page.goto("https://smailpro.com/temporary-email", wait_until="domcontentloaded")
+            await page.wait_for_selector('div[x-text="selectedEmail.address"]')
+            email = await page.inner_text('div[x-text="selectedEmail.address"]')
+            # Registrar
+            pageTab = await browser.new_page()
+            await pageTab.goto(f"{URL_BROWSER}/auth/register", wait_until="domcontentloaded")
+            await pageTab.wait_for_timeout(5000)
+            await pageTab.wait_for_selector("#firstname")
+            await pageTab.type("#firstname", "Rohn")
+            await pageTab.type("#lastname", "Eoe")
+            await pageTab.type("#email", email)
+            await pageTab.type("#password", SENHA)
+            await pageTab.type("#repeatPassword", SENHA)
+            await pageTab.click("#terms")
+            await pageTab.click("button[type='submit']")
+            await pageTab.wait_for_timeout(10000)
+            await page.bring_to_front()
+            await page.wait_for_timeout(2000)
+            await page.wait_for_selector("text=Browser.lol", timeout=10000)
+            await page.click("text=Browser.lol")
+            frame = page.frame_locator("iframe[srcdoc]")
+            code = await frame.locator(".verification-code").text_content(timeout=10000)
+            await pageTab.bring_to_front()
+            await page.close()
+            await pageTab.wait_for_selector("#code", timeout=10000)
+            await pageTab.type("#code", code, delay=10)
+            await pageTab.click("button[type='submit']")
+            await pageTab.wait_for_timeout(10000)
+            # SUCESSO
+            sucessos += 1
+            print(email)
+            if sucessos >= NUM_BROWSERS:
+                print("🎯 3 sucessos atingidos!")
+            await pageTab.goto(f"{URL_BROWSER}/create", wait_until="domcontentloaded")
+            await pageTab.wait_for_timeout(5000)
+            await pageTab.wait_for_selector("#url")
+            await pageTab.type("#url", URL, delay=10)
+            await pageTab.wait_for_timeout(2000)
+            await pageTab.click("button[type='submit']")
+            await pageTab.wait_for_timeout(MINUTOS * 60 * 1000)
 
-# 🔥 NOVA FUNÇÃO COM DELAY
+    except Exception as e:
+        print(f"❌ Browser {i+1} erro: {e}")
 
 
-async def run_with_delay(i):
-    # await asyncio.sleep(i * DELAY)
-    await asyncio.sleep(DELAY)
-    emails = [e.strip() for e in EMAIL.splitlines() if e.strip()]
-    email = random.choice(emails)
-    print(f"🚀 Iniciando navegador {i+1} com email: {email}")
-    await run_browser(i, email)
+async def run_delay(i):
+    while True:
+        await run_browser(i)
+        await asyncio.sleep(50)
 
 
 async def main():
-    attempts = 0
-    while True:
-        try:
-            print("🚀 Iniciando navegadores...")
-            await asyncio.gather(*[run_with_delay(i) for i in range(NUM_BROWSERS)])
-            print("✅ Finalizado com sucesso")
-            break
-        except Exception as e:
-            attempts += 1
-            print(f"❌ Erro (tentativa {attempts}): {e}")
-            if MAX_RETRIES and attempts >= MAX_RETRIES:
-                print("🛑 Limite de tentativas atingido")
-                break
-            print("♻️ Reiniciando em 5 segundos...")
-            await asyncio.sleep(5)
+    print("🚀 Iniciando browsers...")
+    await asyncio.gather(*[run_delay(i) for i in range(NUM_BROWSERS)])
 
 if __name__ == "__main__":
     asyncio.run(main())
