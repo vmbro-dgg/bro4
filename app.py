@@ -17,7 +17,7 @@ async def run_browser(i):
     global sucessos
     try:
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
+            browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             await page.goto("https://smailpro.com/temporary-email", wait_until="domcontentloaded")
             await page.wait_for_selector('div[x-text="selectedEmail.address"]')
